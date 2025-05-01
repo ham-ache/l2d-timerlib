@@ -48,5 +48,4 @@ timer:pause(not paused)
 ```
 
 ## Preview (main.lua, easing out elastic)
-![ezgif-6df75baf9aebb8](https://github.com/user-attachments/assets/0c4c18f8-5f6a-4dd8-a95b-8274ae30ff29)
-(ignore gif lags)
+![ezgif-63b7a1e3b97751](https://github.com/user-attachments/assets/71f66f9b-f1ce-4ebf-8cb2-58d961ed8469)
