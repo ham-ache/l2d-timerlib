@@ -1,4 +1,4 @@
--- hamache's easing library (also contains 123lerp)
+-- hamache's easing library (also contains 123lerp) | Github: @ham-ache
 -- formulas taken from https://easings.net/ and https://www.love2d.org/wiki/General_math [01.05.2025]
 
 local pi = math.pi

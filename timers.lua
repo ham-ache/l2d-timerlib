@@ -1,4 +1,4 @@
--- hamache's fractional timer library for Love2D
+-- hamache's fractional timer library for Love2D | Github: @ham-ache
 
 local ssys = require 'ssys'
 
