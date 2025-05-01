@@ -29,10 +29,15 @@ function timer.new(sec, loops, clb)
         f = 0,
         isf = type(clb) == 'table'
     }, timer)
-    for x, cb in pairs(t.clb) do
-        if type(x) == 'string' then
-            local range = dsep(x)
-            t.clb[x] = {cb, range[1], range[2]}
+    if t.isf then
+        for x, cb in pairs(t.clb) do
+            if type(x) == 'string' then
+                local range = dsep(x)
+                t.clb[x] = {cb, range[1], range[2]}
+            end
+            if x == 0 then
+                cb(0, t)
+            end
         end
     end
     table.insert(timer_instances, t)
@@ -64,9 +69,8 @@ ssys.new('timerlib', 'update', function(dt)
         if t.isf then
             for x, callback in pairs(t.clb) do
                 if type(x) ~= 'string' then
-                    local dcheck = (t.f < df and x < df and x > t.f)
-                    if (t.f >= x and df < x) or dcheck then
-                        callback(t.f, t, dcheck and 'exit' or ((df<st or df>fin) and 'enter' or 'inside'))
+                    if (t.f >= x and df < x) or ((x == 0 or x == 1) and (t.rem-dt < 0)) then
+                        callback(t.f, t)
                     end
                 else
                     local st, fin = callback[2], callback[3]

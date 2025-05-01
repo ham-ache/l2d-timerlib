@@ -12,73 +12,62 @@ local c4 = (2*pi)/3
 local c5 = (2*pi)/4.5
 
 local ease = setmetatable({
-    quad = {
-        In = function(t)
-            return t^2
-        end,
-        out = function(t)
-            return t*(2-t)
-        end,
-        inout = function(t)
-            return t < 0.5  and  2*t*t  or  1-(-2*t+2)^2/2
-        end
-    },
     sine = {
-        In = function(t)
+        i = function(t)
             return 1 - c((t*pi)/2)
         end,
-        out = function(t)
+        o = function(t)
             return s((t*pi)/2)
         end,
-        inout = function(t)
+        io = function(t)
             return -(c(pi*t)-1)/2
         end
     },
     anyexp = {
-        In = function(t, exp)
+        i = function(t, exp)
             return t^exp
         end,
-        out = function(t, exp)
+        o = function(t, exp)
             return 1 - (1-t)^exp
         end,
-        inout = function(t, exp)
-            return (t < 0.5  and  (2*t)^exp  or  1 - (2*(1-t))^exp)/2
+        io = function(t, exp)
+            return t < 0.5  and  2^(exp-1) * t^exp  or  1 - (-2*t+2)^exp/2
         end
     },
     circ = {
-        In = function(t)
+        i = function(t)
             return 1 - r(1-t^2)
         end,
-        out = function(t)
+        o = function(t)
             return r(1-(t-1)^2)
         end,
-        inout = function(t)
+        io = function(t)
             return (t < 0.5  and  1-r(1-(2*t)^2)  or  r(1 - (-2*t+2)^2))/2
         end
     },
     elastic = {
-        In = function(t)
+        i = function(t)
             if t == 0 or t == 1 then return t end
             return -2^(10*t-10) * s((t*10-10.75)*c4)
         end,
-        out = function(t)
+        o = function(t)
             if t == 0 or t == 1 then return t end
             return 2^(-10*t) * s((t*10-0.75)*c4) + 1
         end,
-        inout = function(t)
+        io = function(t)
             if t == 0 or t == 1 then return t end
             local sin = s((20*t-11.125)*c5)/2
             return t < 0.5  and  -2^(20*t-10) * sin  or  2^(-20*t+10) * sin + 1
         end
     },
     back = {
-        In = function(t)
+        i = function(t)
             return c3 * t^3 - c1 * t^2
         end,
-        out = function(t)
+        o = function(t)
             return 1 + c3 * (t-1)^3 + c1 * (t-1)^2
         end,
-        inout = function(t)
+        io = function(t)
             return ( t < 0.5  and  (2*t)^2 * ((c2+1)*2*t-c2)/2  or  (2*t-2)^2 * ((c2+1)*(t*2-2)+c2) + 2 )/2
         end
     },
