@@ -25,7 +25,7 @@ function timer.new(sec, loops, clb)
         rem = sec,
         loops = loops,
         clb = clb,
-        pause = false,
+        paused = false,
         f = 0,
         isf = type(clb) == 'table'
     }, timer)
@@ -47,9 +47,9 @@ end
 ---@param state boolean return state if no bool
 function timer:pause(state)
     if state ~= nil then
-        self.pause = state
+        self.paused = state
     end
-    return self.pause
+    return self.paused
 end
 ---Destroys a timer
 function timer:destroy()
@@ -63,7 +63,7 @@ end
 
 ssys.new('timerlib', 'update', function(dt)
     for _, t in ipairs(timer_instances) do
-        if t.pause then goto continue end
+        if t.paused then goto continue end
         local df = t.f
         t.f = (t.sec - t.rem) / t.sec
         if t.isf then
