@@ -95,11 +95,12 @@ ssys.new('timerlib', 'update', function(dt)
     for _, t in ipairs(timer_instances) do
         if t.paused then goto continue end
 
+        local toend = t.rem - dt < 0
         local df = t.f
         t.f = (t.sec - t.rem) / t.sec
         for x, c in pairs(t.clb) do
             if type(x) ~= 'string' then
-                if t.f >= x and df < x then
+                if (t.f >= x and df < x) or (df < x and toend) then
                     c(t)
                 end
             else
@@ -114,7 +115,7 @@ ssys.new('timerlib', 'update', function(dt)
             end
         end
 
-        if t.rem - dt < 0 then
+        if toend then
             resetTimer(t)
         end
         
