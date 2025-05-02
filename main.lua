@@ -6,14 +6,14 @@ local ease = require 'ease'
 
 ssys.new('tester', 'load', function()
     local Pos = {100, 100}
-    local Start = 0.99
+    local Start = 0.5
     MX, MY = 0, 0
     GPos = Pos
     Status = 'none'
     ts = {'exit time: 0', 'enter time: 0'}
     T = timer.new(1, 'inf', {
         [Start..'-1'] = function(f, relf, _, st)
-            local relf2 = ease.anyexp.io(relf, 100)
+            local relf2 = ease.back.io(relf)
             GPos = {ease.lerp(Pos[1], MX, relf2), ease.lerp(Pos[2], MY, relf2)}
             Status = st..' | '..relf
             if st == 'exit' then
@@ -29,7 +29,7 @@ ssys.new('tester', 'load', function()
         [1] = function(t)
             Pos = GPos
         end
-    })
+    }, 0.02)
     love.graphics.setLineStyle('rough')
 end)
 ssys.new('tester', 'mousepressed', function()
@@ -41,5 +41,5 @@ end)
 ssys.new('tester', 'draw', function()
     love.graphics.circle('fill', GPos[1], GPos[2], 5)
     love.graphics.circle('fill', MX, MY, 1)
-    love.graphics.print(Status..'\n'..ts[1]..'\n'..ts[2], 6, 0)
+    love.graphics.print(Status..'\n'..ts[1]..'\n'..ts[2]..'\n'..T.f, 6, 0)
 end)

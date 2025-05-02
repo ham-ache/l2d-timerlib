@@ -18,8 +18,9 @@ timer_instances = {}
 ---@param sec number time in seconds
 ---@param loops number total loops
 ---@param clb function|table callback function or fractions
+---@param tickrate number|nil independent tickrate or dt
 ---@return timer timer timer
-function timer.new(sec, loops, clb)
+function timer.new(sec, loops, clb, tickrate)
     local t = setmetatable({
         sec = sec,
         rem = sec,
@@ -27,7 +28,8 @@ function timer.new(sec, loops, clb)
         clb = clb,
         paused = false,
         f = 0,
-        isf = type(clb) == 'table'
+        isf = type(clb) == 'table',
+        tick = tickrate
     }, timer)
     if t.isf then
         for x, cb in pairs(t.clb) do
@@ -95,6 +97,7 @@ ssys.new('timerlib', 'update', function(dt)
     for _, t in ipairs(timer_instances) do
         if t.paused then goto continue end
 
+        local dt = t.tick or dt
         local toend = t.rem - dt < 0
         local df = t.f
         t.f = (t.sec - t.rem) / t.sec
