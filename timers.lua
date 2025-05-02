@@ -60,43 +60,66 @@ function timer:destroy()
         end
     end
 end
-
-ssys.new('timerlib', 'update', function(dt)
-    for _, t in ipairs(timer_instances) do
-        if t.paused then goto continue end
-        local df = t.f
-        t.f = (t.sec - t.rem) / t.sec
-        if t.isf then
-            for x, callback in pairs(t.clb) do
-                if type(x) ~= 'string' then
-                    if (t.f >= x and df < x) or ((x == 0 or x == 1) and (t.rem-dt < 0)) then
-                        callback(t.f, t)
-                    end
-                else
-                    local st, fin = callback[2], callback[3]
-                    if t.f > st and t.f < fin then
-                        local relf = fin ~= st and (t.f-st)/(fin-st) or 0
-                        callback[1](t.f, relf, t, (df<st or df>fin) and 'enter' or 'inside')
-                    elseif (df >= st and df <= fin) and (t.f < st or t.f > fin) then
-                        callback[1](t.f, t.f<st and 0 or 1, t, 'exit')
-                    end
+local function resetTimer(t)
+    if t.isf then
+        if t.clb[0] then
+            t.clb[0](t)
+        end
+        for x, c in pairs(t.clb) do
+            if type(x) == 'string' then
+                local st, fin = c[2], c[3]
+                if st == 0 then
+                    c[1](0, 0, t, 'enter')
+                end
+                if fin == 1 then
+                    c[1](1, 1, t, 'exit')
                 end
             end
         end
-        if t.rem - dt > 0 then
-            t.rem = t.rem - dt
-        else
-            t.rem = t.sec
-            if t.loops ~= 'inf' then
-                t.loops = t.loops - 1
-            end
-            if not t.isf then
-                t.clb(t.f, t)
-            end
+        if t.clb[1] then
+            t.clb[1](t)
         end
-        if t.loops ~= 'inf' and t.loops <= 0 then
+    else
+        t.clb(t)
+    end
+
+    t.rem = t.sec
+    if t.loops ~= 'inf' then
+        t.loops = t.loops - 1
+        if t.loops <= 0 then
             t:destroy()
         end
+    end
+end
+ssys.new('timerlib', 'update', function(dt)
+    for _, t in ipairs(timer_instances) do
+        if t.paused then goto continue end
+
+        local df = t.f
+        t.f = (t.sec - t.rem) / t.sec
+        for x, c in pairs(t.clb) do
+            if type(x) ~= 'string' then
+                if t.f >= x and df < x then
+                    c(t)
+                end
+            else
+                local st, fi = c[2], c[3]
+                if t.f >= st and t.f <= fi then
+                    local dfOut = (df<st or df>fi)
+                    local relf = (fi ~= st or dfOut) and (t.f-st)/(fi-st) or 0
+                    c[1](t.f, relf, t, dfOut and 'enter' or 'inside')
+                elseif (df <= fi and t.f > fi) then
+                    c[1](t.f, 1, t, 'exit')
+                end
+            end
+        end
+
+        if t.rem - dt < 0 then
+            resetTimer(t)
+        end
+        
+        t.rem = t.rem - dt
+
         ::continue::
     end
 end, -1)

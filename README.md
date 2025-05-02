@@ -31,10 +31,10 @@ end)
 ### fractional:
 ```lua
 timer.new(1, 5, {
-  [0.66] = function(fraction, timer)
+  [0.66] = function(timer)
     --your func when timer hits 66%
   end,
-  ['0.7-0.8'] = function(fraction, relativefrac)
+  ['0.7-0.8'] = function(fraction, relativefrac, timer, status)
     --your func while timer's fraction is in range between 70% and 80%
     --relativefrac is relative to the range
   end

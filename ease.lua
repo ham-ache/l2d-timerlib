@@ -14,34 +14,43 @@ local c5 = (2*pi)/4.5
 local ease = setmetatable({
     sine = {
         i = function(t)
+            if t == 0 or t == 1 then return t end
             return 1 - c((t*pi)/2)
         end,
         o = function(t)
+            if t == 0 or t == 1 then return t end
             return s((t*pi)/2)
         end,
         io = function(t)
+            if t == 0 or t == 1 then return t end
             return -(c(pi*t)-1)/2
         end
     },
     anyexp = {
         i = function(t, exp)
+            if t == 0 or t == 1 then return t end
             return t^exp
         end,
         o = function(t, exp)
+            if t == 0 or t == 1 then return t end
             return 1 - (1-t)^exp
         end,
         io = function(t, exp)
+            if t == 0 or t == 1 then return t end
             return t < 0.5  and  2^(exp-1) * t^exp  or  1 - (-2*t+2)^exp/2
         end
     },
     circ = {
         i = function(t)
+            if t == 0 or t == 1 then return t end
             return 1 - r(1-t^2)
         end,
         o = function(t)
+            if t == 0 or t == 1 then return t end
             return r(1-(t-1)^2)
         end,
         io = function(t)
+            if t == 0 or t == 1 then return t end
             return (t < 0.5  and  1-r(1-(2*t)^2)  or  r(1-(-2*t+2)^2) + 1)/2
         end
     },
@@ -62,12 +71,15 @@ local ease = setmetatable({
     },
     back = {
         i = function(t)
+            if t == 0 or t == 1 then return t end
             return c3 * t^3 - c1 * t^2
         end,
         o = function(t)
+            if t == 0 or t == 1 then return t end
             return 1 + c3 * (t-1)^3 + c1 * (t-1)^2
         end,
         io = function(t)
+            if t == 0 or t == 1 then return t end
             return t < 0.5  and  (2*t)^2 * ((c2+1)*2*t-c2)/2  or  ((2*t-2)^2*((c2+1)*(t*2-2)+c2)+2)/2
         end
     },
