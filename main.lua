@@ -10,10 +10,11 @@ ssys.new('tester', 'load', function()
     timer.new(1, 'inf', function()
         Status = Status..'\n\n'..love.timer.getTime()
     end)
-    timer.new(2, 'inf', {
+    timer.new(4, 'inf', {
         ['0.5-1'] = function(f, relf)
-            relf = ease.elastic.o(relf)
-            Pos = ease.lerp2({100, 100}, {400, 70}, relf)
+            local mx, my = love.mouse:getPosition()
+            relf = ease.elastic.io(relf)
+            Pos = {ease.lerp(100, mx, relf), ease.lerp(100, my, relf)}
         end,
         [0.5] = function(f)
             Status = 'start - '..f

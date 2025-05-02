@@ -1,4 +1,4 @@
--- hamache's easing library (also contains 123lerp) | Github: @ham-ache
+-- hamache's easing library (also contains lerp) | Github: @ham-ache
 -- formulas taken from https://easings.net/ and https://www.love2d.org/wiki/General_math [01.05.2025]
 
 local pi = math.pi
@@ -42,7 +42,7 @@ local ease = setmetatable({
             return r(1-(t-1)^2)
         end,
         io = function(t)
-            return (t < 0.5  and  1-r(1-(2*t)^2)  or  r(1 - (-2*t+2)^2))/2
+            return (t < 0.5  and  1-r(1-(2*t)^2)  or  r(1-(-2*t+2)^2) + 1)/2
         end
     },
     elastic = {
@@ -68,26 +68,11 @@ local ease = setmetatable({
             return 1 + c3 * (t-1)^3 + c1 * (t-1)^2
         end,
         io = function(t)
-            return ( t < 0.5  and  (2*t)^2 * ((c2+1)*2*t-c2)/2  or  (2*t-2)^2 * ((c2+1)*(t*2-2)+c2) + 2 )/2
+            return t < 0.5  and  (2*t)^2 * ((c2+1)*2*t-c2)/2  or  ((2*t-2)^2*((c2+1)*(t*2-2)+c2)+2)/2
         end
     },
     lerp = function(t, t2, f)
         return t + f*(t2-t)
-    end,
-    lerp2 = function(v, v2, f)
-        local c, c2 = {x = v.x or v[1], y = v.y or v[2]}, {x = v2.x or v2[1], y = v2.y or v2[2]}
-        return {
-            c.x + f*(c2.x - c.x),
-            c.y + f*(c2.y - c.y)
-        }
-    end,
-    lerp3 = function(v, v2, f)
-        local c, c2 = {x = v.x or v[1], y = v.y or v[2], z = v.z or v[3]}, {x = v2.x or v2[1], y = v2.y or v2[2], z = v2.z or v2[3]}
-        return {
-            c.x + f*(c2.x - c.x),
-            c.y + f*(c2.y - c.y),
-            c.z + f*(c2.z - c.z),
-        }
     end,
 }, {__index = function(t, key)
     return t.sine[key]
