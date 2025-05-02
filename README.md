@@ -19,7 +19,7 @@
 
 ### `timer:pause(paused) -> bool`
 
-- pauses a timer, return the state
+- pauses a timer, returns timer's paused state
 
 - timer remains unchanged if paused is nil
 ## Examples:
