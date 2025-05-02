@@ -1,4 +1,4 @@
--- an example
+-- an example, usually for testing purposes
 
 local timer = require 'timers'
 local ssys = require 'ssys'

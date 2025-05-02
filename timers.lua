@@ -101,19 +101,21 @@ ssys.new('timerlib', 'update', function(dt)
         local toend = t.rem - dt < 0
         local df = t.f
         t.f = (t.sec - t.rem) / t.sec
-        for x, c in pairs(t.clb) do
-            if type(x) ~= 'string' then
-                if (t.f >= x and df < x) or (df < x and toend) then
-                    c(t)
-                end
-            else
-                local st, fi = c[2], c[3]
-                if t.f >= st and t.f <= fi then
-                    local dfOut = (df<st or df>fi)
-                    local relf = (fi ~= st or dfOut) and (t.f-st)/(fi-st) or 0
-                    c[1](t.f, relf, t, dfOut and 'enter' or 'inside')
-                elseif (df <= fi and t.f > fi) then
-                    c[1](t.f, 1, t, 'exit')
+        if t.isf then
+            for x, c in pairs(t.clb) do
+                if type(x) ~= 'string' then
+                    if (t.f >= x and df < x) or (df < x and toend) then
+                        c(t)
+                    end
+                else
+                    local st, fi = c[2], c[3]
+                    if t.f >= st and t.f <= fi then
+                        local dfOut = (df<st or df>fi)
+                        local relf = (fi ~= st or dfOut) and (t.f-st)/(fi-st) or 0
+                        c[1](t.f, relf, t, dfOut and 'enter' or 'inside')
+                    elseif (df <= fi and t.f > fi) then
+                        c[1](t.f, 1, t, 'exit')
+                    end
                 end
             end
         end

@@ -39,14 +39,17 @@ local autoArray = {
 local rs = rawset
 local ti = table.insert
 local ts = table.sort
+local pairs = pairs
+local sm = setmetatable
+local gm = getmetatable
 
-local _METAVALID  = setmetatable({}, { __mode = 'k' }) -- meta validator, weak keys
+local _METAVALID  = sm({}, { __mode = 'k' }) -- meta validator, weak keys
 local function setResetter(tbl, saver, name, valdefault) -- resetter function, compatible with other __newindex
     if _METAVALID[tbl] then return end -- if already checked, do nothing
-    local meta = getmetatable(tbl)
+    local meta = gm(tbl)
     if not meta then -- if no metatable, create new
-        setmetatable(tbl, {})
-        meta = getmetatable(tbl)
+        sm(tbl, {})
+        meta = gm(tbl)
     end
     local old = meta.__newindex or rs
     meta.__newindex = function(t, key, val) -- wrap the function or create new __newindex for already existing metatable
@@ -56,7 +59,7 @@ local function setResetter(tbl, saver, name, valdefault) -- resetter function, c
     _METAVALID[tbl] = true -- validate
 end
 
-local _SORTCACHER = setmetatable({}, { -- sort results cache
+local _SORTCACHER = sm({}, { -- sort results cache
     __mode = 'k', -- weak keys
     __index = function(t, key)
         local new = {}
@@ -64,6 +67,7 @@ local _SORTCACHER = setmetatable({}, { -- sort results cache
         return new
     end, -- nonexistent table index is created in case there is not
 })
+
 local sortfunc = { -- sort functions, used in opairs
     _SORTRES = function(tbl) -- manual sort
         local SORTED = {}
@@ -84,6 +88,7 @@ local sortfunc = { -- sort functions, used in opairs
         return SORTED
     end
 }
+
 local function opairs(tbl, alphabetic_sort)
     local cur_sort = alphabetic_sort and '_SORTRESABC' or '_SORTRES'
     local id = 0
@@ -103,7 +108,7 @@ local function opairs(tbl, alphabetic_sort)
     end
 end
 
-local scenes = setmetatable({},  {
+local scenes = sm({},  {
     __index = function(t, key)
         local new = {}
         rs(t, key, new)
