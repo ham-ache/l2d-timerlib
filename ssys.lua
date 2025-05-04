@@ -43,9 +43,9 @@ local pairs = pairs
 local sm = setmetatable
 local gm = getmetatable
 
-local _METAVALID  = sm({}, { __mode = 'k' }) -- meta validator, weak keys
+local metavalid = sm({}, { __mode = 'k' }) -- meta validator, weak keys
 local function setResetter(tbl, saver, name, valdefault) -- resetter function, compatible with other __newindex
-    if _METAVALID[tbl] then return end -- if already checked, do nothing
+    if metavalid[tbl] then return end -- if already checked, do nothing
     local meta = gm(tbl)
     if not meta then -- if no metatable, create new
         sm(tbl, {})
@@ -56,10 +56,10 @@ local function setResetter(tbl, saver, name, valdefault) -- resetter function, c
         saver[t][name] = valdefault
         old(t, key, val)
     end
-    _METAVALID[tbl] = true -- validate
+    metavalid[tbl] = true -- validate
 end
 
-local _SORTCACHER = sm({}, { -- sort results cache
+local sortcacher = sm({}, { -- sort results cache
     __mode = 'k', -- weak keys
     __index = function(t, key)
         local new = {}
@@ -91,19 +91,21 @@ local sortfunc = { -- sort functions, used in opairs
 
 local function opairs(tbl, alphabetic_sort)
     local cur_sort = alphabetic_sort and '_SORTRESABC' or '_SORTRES'
-    local id = 0
     local SORTED = {}
 
-    setResetter(tbl, _SORTCACHER, cur_sort)
-    if _SORTCACHER[tbl][cur_sort] ~= nil then
-        SORTED = _SORTCACHER[tbl][cur_sort]
+    setResetter(tbl, sortcacher, cur_sort)
+    if sortcacher[tbl][cur_sort] ~= nil then
+        SORTED = sortcacher[tbl][cur_sort]
     else
         SORTED = sortfunc[cur_sort](tbl)
-        _SORTCACHER[tbl][cur_sort] = SORTED
+        sortcacher[tbl][cur_sort] = SORTED
     end
+
+    local id = 0
+    local len = #SORTED
     return function()
         id = id + 1
-        if not SORTED[id] then return end
+        if id > len then return end
         return SORTED[id][2], SORTED[id][1]
     end
 end
@@ -127,7 +129,7 @@ local ssys = {
         assert(type(toOverride) == 'string', 'ssys.new [2nd arg]: string expected')
         assert(type(func) == 'function', 'ssys.new [3rd arg]: function expected')
         scenes[toOverride][sName] = {func, _order = order or 0}
-        _SORTCACHER[scenes[toOverride]]['_SORTRES'] = nil
+        sortcacher[scenes[toOverride]]['_SORTRES'] = nil
     end,
     ---Removes a scene
     ---@param sName any Scene Identifier
@@ -135,7 +137,7 @@ local ssys = {
     rem = function(sName, toOverride)
         assert(type(toOverride) == 'string', 'ssys.rem [2nd arg]: string expected')
         scenes[toOverride][sName] = nil
-        _SORTCACHER[scenes[toOverride]]['_SORTRES'] = nil
+        sortcacher[scenes[toOverride]]['_SORTRES'] = nil
     end,
     ---Call scenes in a custom callback
     ---@param toOverride string Callback Name

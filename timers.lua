@@ -110,7 +110,7 @@ ssys.new('timerlib', 'update', function(dt)
         if t.isf then
             for x, c in pairs(t.clb) do
                 if ty(x) ~= 'string' then
-                    if (t.f >= x and df < x) or (df < x and toend) then
+                    if (t.f >= x and df < x) or (df < x and toend) and (x ~= 0 or x ~= 1) then
                         c(t)
                     end
                 else

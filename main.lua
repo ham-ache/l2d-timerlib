@@ -1,7 +1,7 @@
 -- an example, usually for testing purposes
 
-local timer = require 'timers'
 local ssys = require 'ssys'
+local timer = require 'timers'
 local ease = require 'ease'
 
 ssys.new('tester', 'load', function()
@@ -40,5 +40,5 @@ end)
 ssys.new('tester', 'draw', function()
     love.graphics.circle('fill', GPos[1], GPos[2], 5)
     love.graphics.circle('fill', MX, MY, 1)
-    love.graphics.print(Status..'\n'..ts[1]..'\n'..ts[2]..'\n'..T.f, 6, 0)
+    love.graphics.print(Status..'\n'..ts[1]..'\n'..ts[2]..'\n'..string.format('%.2f',T.f), 6, 0)
 end)
