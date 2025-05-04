@@ -13,7 +13,7 @@ ssys.new('tester', 'load', function()
     ts = {'exit time: 0', 'enter time: 0'}
     T = timer.new(1, 'inf', {
         [Start..'-1'] = function(f, relf, _, st)
-            local relf2 = ease.back.io(relf)
+            local relf2 = ease.circ.io(relf)
             GPos = {ease.lerp(Pos[1], MX, relf2), ease.lerp(Pos[2], MY, relf2)}
             Status = st..' | '..relf
             if st == 'exit' then
@@ -29,8 +29,7 @@ ssys.new('tester', 'load', function()
         [1] = function(t)
             Pos = GPos
         end
-    }, 0.02)
-    love.graphics.setLineStyle('rough')
+    })
 end)
 ssys.new('tester', 'mousepressed', function()
     T:pause(true)

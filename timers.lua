@@ -2,6 +2,12 @@
 
 local ssys = require 'ssys'
 
+local pairs = pairs
+local ipairs = ipairs
+local sm = setmetatable
+local ins = table.insert
+local rem = table.remove
+local ty = type
 local FIND = string.find
 local SUB = string.sub
 local NUM = tonumber
@@ -21,19 +27,19 @@ timer_instances = {}
 ---@param tickrate number|nil independent tickrate or dt
 ---@return timer timer timer
 function timer.new(sec, loops, clb, tickrate)
-    local t = setmetatable({
+    local t = sm({
         sec = sec,
         rem = sec,
         loops = loops,
         clb = clb,
         paused = false,
         f = 0,
-        isf = type(clb) == 'table',
+        isf = ty(clb) == 'table',
         tick = tickrate
     }, timer)
     if t.isf then
         for x, cb in pairs(t.clb) do
-            if type(x) == 'string' then
+            if ty(x) == 'string' then
                 local range = dsep(x)
                 t.clb[x] = {cb, range[1], range[2]}
             end
@@ -42,7 +48,7 @@ function timer.new(sec, loops, clb, tickrate)
             end
         end
     end
-    table.insert(timer_instances, t)
+    ins(timer_instances, t)
     return t
 end
 ---Pauses/Continues a timer
@@ -57,7 +63,7 @@ end
 function timer:destroy()
     for x, t in ipairs(timer_instances) do
         if t == self then 
-            table.remove(timer_instances, x)
+            rem(timer_instances, x)
             break
         end
     end
@@ -68,7 +74,7 @@ local function resetTimer(t)
             t.clb[0](t)
         end
         for x, c in pairs(t.clb) do
-            if type(x) == 'string' then
+            if ty(x) == 'string' then
                 local st, fin = c[2], c[3]
                 if st == 0 then
                     c[1](0, 0, t, 'enter')
@@ -103,7 +109,7 @@ ssys.new('timerlib', 'update', function(dt)
         t.f = (t.sec - t.rem) / t.sec
         if t.isf then
             for x, c in pairs(t.clb) do
-                if type(x) ~= 'string' then
+                if ty(x) ~= 'string' then
                     if (t.f >= x and df < x) or (df < x and toend) then
                         c(t)
                     end
