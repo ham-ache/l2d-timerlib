@@ -1,6 +1,9 @@
 -- hamache's fractional timer library for Love2D | Github: @ham-ache
 
-local ssys = require 'ssys'
+local ssys = ssys
+if not ssys then
+    ssys = require 'ssys'
+end
 
 local pairs = pairs
 local ipairs = ipairs
@@ -69,6 +72,13 @@ function timer:destroy()
     end
 end
 local function resetTimer(t)
+    if t.loops ~= 'inf' then
+        t.loops = t.loops - 1
+        if t.loops <= 0 then
+            t:destroy()
+            return
+        end
+    end
     if t.isf then
         if t.clb[0] then
             t.clb[0](t)
@@ -92,12 +102,6 @@ local function resetTimer(t)
     end
 
     t.rem = t.sec
-    if t.loops ~= 'inf' then
-        t.loops = t.loops - 1
-        if t.loops <= 0 then
-            t:destroy()
-        end
-    end
 end
 ssys.new('timerlib', 'update', function(dt)
     for _, t in ipairs(timer_instances) do
