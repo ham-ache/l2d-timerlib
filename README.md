@@ -3,11 +3,12 @@
 **depends on ssys (included) and includes easing library**
 
 ## Functions:
-### `timer.new(sec, loops, clb) -> timer`
+### `timer.new(sec, loops, clb, tickrate) -> timer`
 - creates a new timer. loops can be an int higher than one or 'inf'
 
 - clb can be either a function, either a table depending if you want simple or fractional timers
 
+- tickrate is not required, if not nil then replaces dt with your fixed tickrate
 ---
 
 ### `timer:destroy() -> void`
@@ -18,9 +19,9 @@
 
 ### `timer:pause(paused) -> bool`
 
-- pauses a timer, return the state
+- pauses a timer, returns timer's paused state
 
-- **timer remains unchanged if paused is nil**
+- timer remains unchanged if paused is nil
 ## Examples:
 ### simple:
 ```lua
