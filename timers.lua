@@ -1,10 +1,6 @@
 -- hamache's fractional timer library for Love2D | Github: @ham-ache
 
-local ssys = ssys
-if not ssys then
-    ssys = require 'ssys'
-end
-
+-- evferyy optimnziuation mateters!!!!!!!!!!!!
 local pairs = pairs
 local ipairs = ipairs
 local sm = setmetatable
@@ -14,6 +10,7 @@ local ty = type
 local FIND = string.find
 local SUB = string.sub
 local NUM = tonumber
+
 local function dsep(str)
     local sep = FIND(str, '-')
     return {NUM(SUB(str, 1, sep - 1)), NUM(SUB(str, sep + 1))}
@@ -103,7 +100,7 @@ local function resetTimer(t)
 
     t.rem = t.sec
 end
-ssys.new('timerlib', 'update', function(dt)
+function timer.update(dt)
     for _, t in ipairs(timer_instances) do
         if t.paused then goto continue end
 
@@ -138,6 +135,6 @@ ssys.new('timerlib', 'update', function(dt)
 
         ::continue::
     end
-end, -1)
+end
 
 return timer

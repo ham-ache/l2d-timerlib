@@ -36,6 +36,7 @@ local autoArray = {
     'touchreleased',
 }
 
+-- evferyy optimnziuation mateters!!!!!!!!!!!!
 local rs = rawset
 local ti = table.insert
 local ts = table.sort

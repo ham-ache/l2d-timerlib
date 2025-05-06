@@ -3,6 +3,7 @@
 local ssys = require 'ssys'
 local timer = require 'timers'
 local ease = require 'ease'
+ssys.new('tester', 'update', timer.update)
 
 ssys.new('tester', 'load', function()
     local Pos = {100, 100}
