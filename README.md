@@ -1,6 +1,6 @@
 # hamache's timers
 ### a love2d timer library which supports both fractional and simple timers
-**depends on ssys (included) and includes easing library**
+**includes easing library and ssys**
 
 ## Functions:
 ### `timer.new(sec, loops, clb, tickrate) -> timer`
