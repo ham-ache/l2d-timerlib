@@ -69,21 +69,20 @@ function timer:destroy()
     end
 end
 local function resetTimer(t)
+    local last
     if t.loops ~= 'inf' then
         t.loops = t.loops - 1
-        if t.loops <= 0 then
-            t:destroy()
-            return
-        end
+        last = t.loops <= 0
     end
+    
     if t.isf then
-        if t.clb[0] then
+        if t.clb[0] and not last then
             t.clb[0](t)
         end
         for x, c in pairs(t.clb) do
             if ty(x) == 'string' then
                 local st, fin = c[2], c[3]
-                if st == 0 then
+                if st == 0 and not last then
                     c[1](0, 0, t, 'enter')
                 end
                 if fin == 1 then
@@ -98,6 +97,10 @@ local function resetTimer(t)
         t.clb(t)
     end
 
+    if last then
+        t:destroy()
+        return
+    end
     t.rem = t.sec
 end
 function timer.update(dt)
@@ -135,6 +138,10 @@ function timer.update(dt)
 
         ::continue::
     end
+end
+
+if type(ssys) == 'table' and ssys.new then
+    ssys.new('timerlibupd', 'update', timer.update)
 end
 
 return timer
