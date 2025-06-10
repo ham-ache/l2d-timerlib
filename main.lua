@@ -14,7 +14,7 @@ ssys.new('tester', 'load', function()
     ts = {'exit time: 0', 'enter time: 0'}
     T = timer.new(1, 'inf', {
         [Start..'-1'] = function(f, relf, _, st)
-            local relf2 = ease.circ.io(relf)
+            local relf2 = ease.back.io(relf)
             GPos = {ease.lerp(Pos[1], MX, relf2), ease.lerp(Pos[2], MY, relf2)}
             Status = st..' | '..relf
             if st == 'exit' then
@@ -41,5 +41,5 @@ end)
 ssys.new('tester', 'draw', function()
     love.graphics.circle('fill', GPos[1], GPos[2], 5)
     love.graphics.circle('fill', MX, MY, 1)
-    love.graphics.print(Status..'\n'..ts[1]..'\n'..ts[2]..'\n'..string.format('%.2f',T.f), 6, 0)
+    love.graphics.print(Status..'\n'..ts[1]..'\n'..ts[2]..'\n'..string.format('%.87f',T.f), 6, 0)
 end)

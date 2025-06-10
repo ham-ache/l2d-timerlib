@@ -1,19 +1,11 @@
 -- hamache's fractional timer library for Love2D | Github: @ham-ache
 
--- evferyy optimnziuation mateters!!!!!!!!!!!!
-local pairs = pairs
-local ipairs = ipairs
-local sm = setmetatable
-local ins = table.insert
-local rem = table.remove
-local ty = type
-local FIND = string.find
-local SUB = string.sub
-local NUM = tonumber
+local ps = pairs
+local ips = ipairs
 
 local function dsep(str)
-    local sep = FIND(str, '-')
-    return {NUM(SUB(str, 1, sep - 1)), NUM(SUB(str, sep + 1))}
+    local sep = string.find(str, '-')
+    return {tonumber(string.sub(str, 1, sep - 1)), tonumber(string.sub(str, sep + 1))}
 end
 
 ---@class timer
@@ -27,19 +19,19 @@ timer_instances = {}
 ---@param tickrate number|nil independent tickrate or dt
 ---@return timer timer timer
 function timer.new(sec, loops, clb, tickrate)
-    local t = sm({
+    local t = setmetatable({
         sec = sec,
         rem = sec,
         loops = loops,
         clb = clb,
         paused = false,
         f = 0,
-        isf = ty(clb) == 'table',
+        isf = type(clb) == 'table',
         tick = tickrate
     }, timer)
     if t.isf then
-        for x, cb in pairs(t.clb) do
-            if ty(x) == 'string' then
+        for x, cb in ps(t.clb) do
+            if type(x) == 'string' then
                 local range = dsep(x)
                 t.clb[x] = {cb, range[1], range[2]}
             end
@@ -48,7 +40,7 @@ function timer.new(sec, loops, clb, tickrate)
             end
         end
     end
-    ins(timer_instances, t)
+    table.insert(timer_instances, t)
     return t
 end
 ---Pauses/Continues a timer
@@ -61,7 +53,7 @@ function timer:pause(state)
 end
 ---Destroys a timer
 function timer:destroy()
-    for x, t in ipairs(timer_instances) do
+    for x, t in ips(timer_instances) do
         if t == self then 
             rem(timer_instances, x)
             break
@@ -79,8 +71,8 @@ local function resetTimer(t)
         if t.clb[0] and not last then
             t.clb[0](t)
         end
-        for x, c in pairs(t.clb) do
-            if ty(x) == 'string' then
+        for x, c in ps(t.clb) do
+            if type(x) == 'string' then
                 local st, fin = c[2], c[3]
                 if st == 0 and not last then
                     c[1](0, 0, t, 'enter')
@@ -104,7 +96,7 @@ local function resetTimer(t)
     t.rem = t.sec
 end
 function timer.update(dt)
-    for _, t in ipairs(timer_instances) do
+    for _, t in ips(timer_instances) do
         if t.paused then goto continue end
 
         local dt = t.tick or dt
@@ -112,8 +104,8 @@ function timer.update(dt)
         local df = t.f
         t.f = (t.sec - t.rem) / t.sec
         if t.isf then
-            for x, c in pairs(t.clb) do
-                if ty(x) ~= 'string' then
+            for x, c in ps(t.clb) do
+                if type(x) ~= 'string' then
                     if (t.f >= x and df < x) or (df < x and toend) and (x ~= 0 or x ~= 1) then
                         c(t)
                     end
