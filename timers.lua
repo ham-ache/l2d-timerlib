@@ -55,7 +55,7 @@ end
 function timer:destroy()
     for x, t in ips(timer_instances) do
         if t == self then 
-            rem(timer_instances, x)
+            table.remove(timer_instances, x)
             break
         end
     end
