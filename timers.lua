@@ -106,7 +106,7 @@ function timer.update(dt)
         if t.isf then
             for x, c in ps(t.clb) do
                 if type(x) ~= 'string' then
-                    if (t.f >= x and df < x) or (df < x and toend) and (x ~= 0 or x ~= 1) then
+                    if (t.f >= x and df < x) or (df < x and toend) and x ~= 0 and x ~= 1 then
                         c(t)
                     end
                 else
