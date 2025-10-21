@@ -1,7 +1,7 @@
 -- hamache's fractional timer library for Love2D | Github: @ham-ache
 
-local ps = pairs
-local ips = ipairs
+local pairs = pairs
+local ipairs = ipairs
 
 local function dsep(str)
     local sep = string.find(str, '-')
@@ -30,7 +30,7 @@ function timer.new(sec, loops, clb, tickrate)
         tick = tickrate
     }, timer)
     if t.isf then
-        for x, cb in ps(t.clb) do
+        for x, cb in pairs(t.clb) do
             if type(x) == 'string' then
                 local range = dsep(x)
                 t.clb[x] = {cb, range[1], range[2]}
@@ -53,7 +53,7 @@ function timer:pause(state)
 end
 ---Destroys a timer
 function timer:destroy()
-    for x, t in ips(timer_instances) do
+    for x, t in ipairs(timer_instances) do
         if t == self then 
             table.remove(timer_instances, x)
             break
@@ -71,7 +71,7 @@ local function resetTimer(t)
         if t.clb[0] and not last then
             t.clb[0](t)
         end
-        for x, c in ps(t.clb) do
+        for x, c in pairs(t.clb) do
             if type(x) == 'string' then
                 local st, fin = c[2], c[3]
                 if st == 0 and not last then
@@ -96,7 +96,7 @@ local function resetTimer(t)
     t.rem = t.sec
 end
 function timer.update(dt)
-    for _, t in ips(timer_instances) do
+    for _, t in ipairs(timer_instances) do
         if t.paused then goto continue end
 
         local dt = t.tick or dt
@@ -104,7 +104,7 @@ function timer.update(dt)
         local df = t.f
         t.f = (t.sec - t.rem) / t.sec
         if t.isf then
-            for x, c in ps(t.clb) do
+            for x, c in pairs(t.clb) do
                 if type(x) ~= 'string' then
                     if (t.f >= x and df < x) or (df < x and toend) and x ~= 0 and x ~= 1 then
                         c(t)
