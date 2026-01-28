@@ -88,6 +88,7 @@ local ssys = {
         assert(type(func) == 'function', 'ssys.new [3rd arg]: function expected')
         scenes[toOverride][sName] = {func, _order = order or 0, funcif = funcif}
         sortcacher[scenes[toOverride]] = nil
+        return scenes[toOverride][sName]
     end,
     ---Removes a scene
     ---@param sName any Scene Identifier

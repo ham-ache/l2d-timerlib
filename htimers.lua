@@ -14,7 +14,7 @@ local function typeGuard(object, error_, ...)
 end
 
 ---@class timer
-local timer = {instances = {}}
+local timer = {instances = {}, update_ls = true}
 timer.__index = timer
 
 ---Creates a new timer
@@ -119,14 +119,12 @@ end
 timer.update = timerUpdate
 
 local function l2d_ssys_init(ssys, as, order)
-  local pauser = true
   local ssys = ssys or _G.ssys
   if not ssys then return end
   local name = as or 'timerLib'
-  ssys.new(name, 'update', function(dt)
+  return ssys.new(name, 'update', function(dt)
     for _, t in ipairs(timer.instances) do timerUpdate(t, dt) end
-  end, order, function() return pauser end)
-  return pauser
+  end, order, function() return timer.update_ls end)
 end
 timer.l2d_ssys_init = l2d_ssys_init
 
