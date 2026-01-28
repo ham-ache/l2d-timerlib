@@ -1,45 +1,34 @@
--- an example, usually for testing purposes
-
+local _G = _G
 local ssys = require 'ssys'
-local timer = require 'timers'
+local timer = require 'timers2'
 local ease = require 'ease'
-ssys.new('tester', 'update', timer.update)
 
-ssys.new('tester', 'load', function()
-    local Pos = {100, 100}
-    local Start = 0.5
-    MX, MY = 0, 0
-    GPos = Pos
-    Status = 'none'
-    ts = {'exit time: 0', 'enter time: 0'}
-    T = timer.new(1, 'inf', {
-        [Start..'-1'] = function(f, relf, _, st)
-            local relf2 = ease.back.io(relf)
-            GPos = {ease.lerp(Pos[1], MX, relf2), ease.lerp(Pos[2], MY, relf2)}
-            Status = st..' | '..relf
-            if st == 'exit' then
-                ts[1] = 'exit time: '..love.timer.getTime()
-            end
-            if st == 'enter' then
-                ts[2] = 'enter time: '..love.timer.getTime()
-            end
-        end,
-        [Start] = function(t)
-            MX, MY = love.mouse:getPosition()
-        end,
-        [1] = function(t)
-            Pos = GPos
-        end
-    })
+-- example
+-- using ssys for love2d
+-- ssys is not neccessary for timers to work
+
+local globalposx, globalposy = 0, 0
+timer.l2d_ssys_init(ssys)
+
+ssys.new('main', 'load', function()
+  local start = 0.5
+
+  local mx, my = 0, 0
+  local posx, posy = 0, 0
+
+  timer.new(1, 'inf', {
+    [0.35] = function()
+      mx, my = love.mouse.getPosition()
+    end,
+    [{0.35, 0.75}] = function(_, relf)
+      globalposx = ease.lerp(posx, mx, ease.back.io(relf))
+      globalposy = ease.lerp(posy, my, ease.back.io(relf))
+    end,
+    [1] = function()
+      posx, posy = mx, my
+    end
+  })
 end)
-ssys.new('tester', 'mousepressed', function()
-    T:pause(true)
-end)
-ssys.new('tester', 'mousereleased', function()
-    T:pause(false)
-end)
-ssys.new('tester', 'draw', function()
-    love.graphics.circle('fill', GPos[1], GPos[2], 5)
-    love.graphics.circle('fill', MX, MY, 1)
-    love.graphics.print(Status..'\n'..ts[1]..'\n'..ts[2]..'\n'..string.format('%.87f',T.f), 6, 0)
+ssys.new('main', 'draw', function()
+  love.graphics.circle('fill', globalposx, globalposy, 3)
 end)
