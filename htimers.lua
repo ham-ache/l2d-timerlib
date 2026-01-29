@@ -3,7 +3,6 @@ local _G = _G
 local pairs, ipairs, type, setmetatable, tonumber, table_remove, table_insert, assert =
       pairs, ipairs, type, setmetatable, tonumber, table.remove, table.insert, assert  
 
--- compares an object to multiple types, asserts with error_
 local function typeGuard(object, error_, ...)
   local objectType = type(object)
   local pass
