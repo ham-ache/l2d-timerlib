@@ -1,5 +1,4 @@
 -- 'Scene Systems' Cross-file callbacks library by hamache | Github: @ham-ache
-
 local autoArray = {
     'draw',
     'load',
