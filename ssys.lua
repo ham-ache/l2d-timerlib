@@ -1,5 +1,8 @@
 -- 'Scene Systems' Cross-file callbacks library by hamache | Github: @ham-ache
-local autoArray = {
+local _G = _G
+local ipairs, type, mathFloor , assert, setmetatable, rawset = 
+      ipairs, type, math.floor, assert, setmetatable, rawset
+local l2d_override = {
     'draw',
     'load',
     'lowmemory',
@@ -35,94 +38,124 @@ local autoArray = {
     'touchreleased',
 }
 
-local sortcacher = setmetatable({}, { -- sort results cache
-    __mode = 'k', -- weak keys
-    __index = function(t, key)
-        local new = {}
-        rawset(t, key, new)
-        return new
-    end, -- nonexistent table index is created in case there is not
-})
+----------------------------------------------
+-- used neccessary parts of Tieske's binary heap (https://github.com/Tieske)
 
-local function opairs(tbl)
-    local SORTED = sortcacher[tbl]
-    if not SORTED or next(SORTED) == nil then
-        SORTED = {}
-        for x, t in pairs(tbl) do
-            if t._order ~= nil then
-                table.insert(SORTED, {t, x, t._order})
-            end
-        end
-        table.sort(SORTED, function(a, b) return a[3] < b[3] end)
-        sortcacher[tbl] = SORTED
-    end
+local sceneHeap = {}
+sceneHeap.__index = sceneHeap
 
-    local id = 0
-    local len = #SORTED
-    return function()
-        id = id + 1
-        if id > len then return end
-        return SORTED[id][2], SORTED[id][1]
-    end
+function sceneHeap.new()
+  local heap = setmetatable({
+    scenes = {},
+    orders = {},
+    sOrder = {},
+  }, sceneHeap)
+  return heap
 end
 
-local scenes = setmetatable({},  {
-    __index = function(t, key)
-        local new = {}
-        rawset(t, key, new)
-        return new
-    end,
+function sceneHeap:swap(a, b)
+  self.orders[a], self.orders[b] = 
+  self.orders[b], self.orders[a] ;
+end
+
+function sceneHeap:float(pos)
+  while pos > 1 do
+    local parent = mathFloor(pos/2)
+    if self.orders[pos] > self.orders[parent] then break end
+    self:swap(pos, parent)
+    pos = parent
+  end
+end
+
+function sceneHeap:sink(pos)
+  local last = #self.orders
+  while true do
+    local min = pos
+    local child = pos*2
+    for c = child, child + 1 do
+      if c <= last and self.orders[c] > self.orders[min] then min = c end
+    end
+    if min == pos then break end
+    self:swap(pos, min)
+    pos = min
+  end
+end
+
+function sceneHeap:push(sceneName, order)
+  local pos = #self.orders + 1
+  self.sOrder[sceneName] = pos
+  self.scenes[pos] = sceneName
+  self.orders[pos] = order or 0
+  self:float(pos)
+end
+
+function sceneHeap:remove(pos)
+  if pos == nil then return end
+  local last = #self.orders
+  local v = self.orders[pos]
+  if pos < last then
+    self:swap(last, pos)
+    self:float(pos)
+    self:sink(pos)
+  end
+  if pos <= last then
+    self.orders[last] = nil
+  end
+  return v
+end
+
+-----------------------------------------------
+
+local heapStack = setmetatable({}, {
+  __index = function(t, key)
+    local new = sceneHeap.new()
+    rawset(t, key, new)
+    return new
+  end,
+})
+local scenes = setmetatable({}, {
+  __index = function(t, key)
+    local new = {}
+    rawset(t, key, new)
+    return new
+  end,
 })
 
----@class ssys
-local ssys = {
-    ---Creates a new scene
-    ---@param sName any Scene Identifier
-    ---@param toOverride string Callback Name
-    ---@param func function Your function
-    ---@param order number? Order
-    ---@param condition function? Condition on which scene will execute
-    new = function(sName, toOverride, func, order, funcif)
-        assert(type(toOverride) == 'string', 'ssys.new [2nd arg]: string expected')
-        assert(type(func) == 'function', 'ssys.new [3rd arg]: function expected')
-        scenes[toOverride][sName] = {func, _order = order or 0, funcif = funcif}
-        sortcacher[scenes[toOverride]] = nil
-        return scenes[toOverride][sName]
-    end,
-    ---Removes a scene
-    ---@param sName any Scene Identifier
-    ---@param toOverride string Callback Name
-    rem = function(sName, toOverride)
-        assert(type(toOverride) == 'string', 'ssys.rem [2nd arg]: string expected')
-        scenes[toOverride][sName] = nil
-        sortcacher[scenes[toOverride]] = nil
-    end,
-    ---Call scenes in a custom callback
-    ---@param toOverride string Callback Name
-    ---@param args ... Any passed arguments
-    call = function(toOverride, ...)
-        for _, params in opairs(scenes[toOverride]) do
-            if (params.funcif and params.funcif()) or not params.funcif then 
-                params[1](...)
-            end
-        end
-    end,
-    ---Get scene data
-    ---@param sName any Scene Identifier
-    ---@param toOverride string Callback Name
-    data = function(sName, toOverride)
-        local targ = scenes[toOverride][sName]
-        if not targ then return end
-        return {
-            func = targ[1],
-            order = targ._order,
-        }
-    end,
-}
+local function new(sceneName, event, callback, order)
+  assert(type(callback) == 'function', 'ssys.new, 3rd argument => function expected')
+  scenes[event][sceneName] = callback
+  heapStack[event]:push(sceneName, order or 0)
+end 
 
-for _, name in ipairs(autoArray) do
+local function rem(sceneName, event)
+  local heap = heapStack[event]
+  scenes[event][sceneName] = nil
+  heap:remove(heap.sOrder[sceneName])
+end
+
+local function call(event, ...)
+  local heap = heapStack[event]
+  for x = 1, #heap.orders do
+    local sc = heap.scenes[x]
+    if not sc then break end
+    if scenes[event][sc] then
+      scenes[event][sc](...)
+    end
+  end
+end
+
+local function overrideL2D()
+  for _, name in ipairs(l2d_override) do
     love[name] = function(...)
-        ssys.call(name, ...)
+      call(name, ...)
     end
+  end
 end
-return ssys
+
+return{
+  new = new,
+  rem = rem,
+  call = call,
+  overrideL2D = overrideL2D,
+  scenes = scenes
+}

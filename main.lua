@@ -2,6 +2,7 @@ local _G = _G
 local timer = require 'htimers'
 local ssys = require 'ssys'
 local ease = require 'ease'
+ssys.overrideL2D
 
 --[[
 io.write(os.clock()) -- benchmark: startup
